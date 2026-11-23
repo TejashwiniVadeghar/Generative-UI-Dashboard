@@ -71,13 +71,12 @@
 
         const data = await response.json();
 
-        // Check if Google API returned an actual error
         if (!response.ok || data.error) {
           throw new Error(data.error?.message || "API request failed");
         }
 
-        // Fixed array indexing [0]
-        const rawText = data.candidates[0].content.parts[0].text;
+        // Using .at(0) safely accesses the first item in the array
+        const rawText = data.candidates.at(0).content.parts.at(0).text;
         const chartData = JSON.parse(rawText);
 
         document.getElementById("chartTitle").innerText = chartData.title;
