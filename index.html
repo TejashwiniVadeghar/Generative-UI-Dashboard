@@ -2,43 +2,153 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Visual Dashboard</title>
-  <script src="https://tailwindcss.com"></script>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background-color: #020617;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 580px;
+      background-color: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    h1 { margin: 0; font-size: 22px; font-weight: 700; }
+    .subtitle { margin: 0 0 18px 0; font-size: 14px; color: #94a3b8; }
+    .demo-btn {
+      background-color: #1e293b;
+      color: #60a5fa;
+      border: 1px solid #334155;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .demo-btn:hover { background-color: #334155; }
+    .key-input {
+      width: 100%;
+      background-color: #020617;
+      border: 1px solid #1e293b;
+      color: #cbd5e1;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      margin-bottom: 14px;
+      outline: none;
+    }
+    .key-input:focus, .prompt-input:focus { border-color: #3b82f6; }
+    .prompt-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .prompt-input {
+      flex: 1;
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      color: #ffffff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+    }
+    .gen-btn {
+      background-color: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .gen-btn:hover { background-color: #3b82f6; }
+    .gen-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .error-box {
+      display: none;
+      background-color: rgba(127, 29, 29, 0.4);
+      border: 1px solid #991b1b;
+      color: #fca5a5;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+    .result-area { display: none; }
+    .chart-title {
+      margin: 0 0 16px 0;
+      font-size: 17px;
+      font-weight: 600;
+      color: #60a5fa;
+    }
+    .bar-row { margin-bottom: 14px; }
+    .bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .bar-percent { color: #94a3b8; }
+    .bar-track {
+      width: 100%;
+      height: 14px;
+      background-color: #1e293b;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2563eb, #38bdf8);
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.6s ease-out;
+    }
+  </style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-6">
+<body>
 
-  <div class="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-    <div class="flex justify-between items-start mb-1">
-      <h1 class="text-2xl font-bold">AI Mini Dashboard</h1>
-      <button onclick="runDemo()" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-3 py-1 rounded-lg border border-slate-700 transition">
-        ✨ Try Demo Mode
-      </button>
+  <div class="card">
+    <div class="header">
+      <h1>AI Mini Dashboard</h1>
+      <button onclick="runDemo()" class="demo-btn">✨ Try Demo Mode</button>
     </div>
-    <p class="text-slate-400 text-sm mb-4">Generate instant visual charts using Gemini AI.</p>
+    <p class="subtitle">Generate instant visual charts using Gemini AI.</p>
 
-    <!-- Safe API Key Input Box -->
-    <div class="mb-4">
-      <input id="apiKeyInput" type="password" placeholder="Paste your Google AI Studio API Key here..."
-        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-300 focus:outline-none focus:border-blue-500" />
-    </div>
+    <input id="apiKeyInput" type="password" class="key-input" placeholder="Paste your Google AI Studio API Key here..." />
 
-    <!-- Topic Prompt Box -->
-    <div class="flex gap-2 mb-6">
-      <input id="promptInput" type="text" placeholder="e.g., Top 4 programming languages popularity"
-        class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500" />
-      <button onclick="generateChart()" id="btn"
-        class="bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-xl text-sm font-medium transition">
-        Generate
-      </button>
+    <div class="prompt-row">
+      <input id="promptInput" type="text" class="prompt-input" placeholder="e.g., Top 4 programming languages popularity" />
+      <button onclick="generateChart()" id="btn" class="gen-btn">Generate</button>
     </div>
 
-    <!-- Error Message Box -->
-    <div id="errorBox" class="hidden mb-4 p-3 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs"></div>
+    <div id="errorBox" class="error-box"></div>
 
-    <!-- Output Area -->
-    <div id="resultArea" class="hidden space-y-4">
-      <h2 id="chartTitle" class="text-lg font-semibold text-blue-400"></h2>
-      <div id="barsContainer" class="space-y-3"></div>
+    <div id="resultArea" class="result-area">
+      <h2 id="chartTitle" class="chart-title"></h2>
+      <div id="barsContainer"></div>
     </div>
   </div>
 
@@ -48,25 +158,31 @@
       const container = document.getElementById("barsContainer");
       container.innerHTML = "";
 
-      chartData.items.forEach(item => {
-        container.innerHTML += `
-          <div>
-            <div class="flex justify-between text-xs mb-1">
-              <span>${item.label}</span>
-              <span class="text-slate-400">${item.value}%</span>
-            </div>
-            <div class="w-full bg-slate-800 rounded-full h-3">
-              <div class="bg-blue-500 h-3 rounded-full transition-all duration-500" style="width: ${item.value}%"></div>
-            </div>
+      chartData.items.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        row.innerHTML = `
+          <div class="bar-labels">
+            <span>${item.label}</span>
+            <span class="bar-percent">${item.value}%</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill" id="bar-${index}"></div>
           </div>
         `;
+        container.appendChild(row);
+
+        // Trigger smooth bar width animation right after rendering
+        setTimeout(() => {
+          document.getElementById(`bar-${index}`).style.width = `${item.value}%`;
+        }, 50);
       });
 
-      document.getElementById("resultArea").classList.remove("hidden");
+      document.getElementById("resultArea").style.display = "block";
     }
 
     function runDemo() {
-      document.getElementById("errorBox").classList.add("hidden");
+      document.getElementById("errorBox").style.display = "none";
       document.getElementById("promptInput").value = "Top 4 programming languages popularity";
       renderBars({
         title: "Top 4 Programming Languages (Demo Output)",
@@ -85,9 +201,9 @@
       const btn = document.getElementById("btn");
       const errorBox = document.getElementById("errorBox");
 
-      errorBox.classList.add("hidden");
+      errorBox.style.display = "none";
 
-      if (!apiKey) return alert("Please paste your Gemini API key—or click 'Try Demo Mode' at the top right!");
+      if (!apiKey) return alert("Please paste your Gemini API key—or click '✨ Try Demo Mode'!");
       if (!prompt) return alert("Please type a topic first!");
 
       btn.innerText = "Thinking...";
@@ -120,8 +236,8 @@
         const chartData = JSON.parse(rawText);
         renderBars(chartData);
       } catch (err) {
-        errorBox.innerText = "Error: " + err.message + " (Tip: Check if an ad-blocker or VPN is blocking Google APIs, or try Incognito mode.)";
-        errorBox.classList.remove("hidden");
+        errorBox.innerText = "Error: " + err.message + " (Tip: Check if an ad-blocker or Wi-Fi firewall is blocking Google APIs.)";
+        errorBox.style.display = "block";
       } finally {
         btn.innerText = "Generate";
         btn.disabled = false;
