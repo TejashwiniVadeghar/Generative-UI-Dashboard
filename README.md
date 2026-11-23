@@ -1,5 +1,5 @@
-# Generative-UI-Dashboard
-📊 AI Visual Dashboard (Generative UI)
+# 📊 Generative-UI-Dashboard
+ AI Visual Dashboard (Generative UI)
 
 An interactive web application that transforms natural-language prompts into dynamic, animated bar charts using **Google Gemini AI** and **Tailwind CSS**.
 
