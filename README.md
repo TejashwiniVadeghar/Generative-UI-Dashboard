@@ -3,7 +3,7 @@
 
 An interactive web application that transforms natural-language prompts into dynamic, animated bar charts using **Google Gemini AI** and **Tailwind CSS**.
 
-🔗 **[View Live Demo]([https://github.io](https://tejashwinivadeghar.github.io/Generative-UI-Dashboard/))**
+🔗 **[View Live Demo]([https://github.io](https://tejashwinivadeghar.github.io/Generative-UI-Dashboard/)**
 
 ---
 
