@@ -27,6 +27,9 @@
       </button>
     </div>
 
+    <!-- Error Message Box -->
+    <div id="errorBox" class="hidden mb-4 p-3 rounded-xl bg-red-950/60 border border-red-800 text-red-300 text-xs"></div>
+
     <!-- Output Area -->
     <div id="resultArea" class="hidden space-y-4">
       <h2 id="chartTitle" class="text-lg font-semibold text-blue-400"></h2>
@@ -39,6 +42,9 @@
       const apiKey = document.getElementById("apiKeyInput").value.trim();
       const prompt = document.getElementById("promptInput").value.trim();
       const btn = document.getElementById("btn");
+      const errorBox = document.getElementById("errorBox");
+
+      errorBox.classList.add("hidden");
 
       if (!apiKey) return alert("Please paste your Gemini API key in the top box first!");
       if (!prompt) return alert("Please type a topic first!");
@@ -64,7 +70,15 @@
         );
 
         const data = await response.json();
-        const chartData = JSON.parse(data.candidates.content.parts.text);
+
+        // Check if Google API returned an actual error
+        if (!response.ok || data.error) {
+          throw new Error(data.error?.message || "API request failed");
+        }
+
+        // Fixed array indexing [0]
+        const rawText = data.candidates[0].content.parts[0].text;
+        const chartData = JSON.parse(rawText);
 
         document.getElementById("chartTitle").innerText = chartData.title;
         const container = document.getElementById("barsContainer");
@@ -86,7 +100,8 @@
 
         document.getElementById("resultArea").classList.remove("hidden");
       } catch (err) {
-        alert("Error: Make sure your API key is valid!");
+        errorBox.innerText = "Error: " + err.message;
+        errorBox.classList.remove("hidden");
       } finally {
         btn.innerText = "Generate";
         btn.disabled = false;
