@@ -8,7 +8,12 @@
 <body class="bg-slate-950 text-white min-h-screen flex items-center justify-center p-6">
 
   <div class="max-w-xl w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-    <h1 class="text-2xl font-bold mb-1">AI Mini Dashboard</h1>
+    <div class="flex justify-between items-start mb-1">
+      <h1 class="text-2xl font-bold">AI Mini Dashboard</h1>
+      <button onclick="runDemo()" class="text-xs bg-slate-800 hover:bg-slate-700 text-blue-400 px-3 py-1 rounded-lg border border-slate-700 transition">
+        ✨ Try Demo Mode
+      </button>
+    </div>
     <p class="text-slate-400 text-sm mb-4">Generate instant visual charts using Gemini AI.</p>
 
     <!-- Safe API Key Input Box -->
@@ -38,6 +43,42 @@
   </div>
 
   <script>
+    function renderBars(chartData) {
+      document.getElementById("chartTitle").innerText = chartData.title;
+      const container = document.getElementById("barsContainer");
+      container.innerHTML = "";
+
+      chartData.items.forEach(item => {
+        container.innerHTML += `
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span>${item.label}</span>
+              <span class="text-slate-400">${item.value}%</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-3">
+              <div class="bg-blue-500 h-3 rounded-full transition-all duration-500" style="width: ${item.value}%"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById("resultArea").classList.remove("hidden");
+    }
+
+    function runDemo() {
+      document.getElementById("errorBox").classList.add("hidden");
+      document.getElementById("promptInput").value = "Top 4 programming languages popularity";
+      renderBars({
+        title: "Top 4 Programming Languages (Demo Output)",
+        items: [
+          { label: "Python", value: 92 },
+          { label: "JavaScript / TypeScript", value: 85 },
+          { label: "Java", value: 68 },
+          { label: "C++", value: 54 }
+        ]
+      });
+    }
+
     async function generateChart() {
       const apiKey = document.getElementById("apiKeyInput").value.trim();
       const prompt = document.getElementById("promptInput").value.trim();
@@ -46,7 +87,7 @@
 
       errorBox.classList.add("hidden");
 
-      if (!apiKey) return alert("Please paste your Gemini API key in the top box first!");
+      if (!apiKey) return alert("Please paste your Gemini API key—or click 'Try Demo Mode' at the top right!");
       if (!prompt) return alert("Please type a topic first!");
 
       btn.innerText = "Thinking...";
@@ -75,31 +116,11 @@
           throw new Error(data.error?.message || "API request failed");
         }
 
-        // Using .at(0) safely accesses the first item in the array
         const rawText = data.candidates.at(0).content.parts.at(0).text;
         const chartData = JSON.parse(rawText);
-
-        document.getElementById("chartTitle").innerText = chartData.title;
-        const container = document.getElementById("barsContainer");
-        container.innerHTML = "";
-
-        chartData.items.forEach(item => {
-          container.innerHTML += `
-            <div>
-              <div class="flex justify-between text-xs mb-1">
-                <span>${item.label}</span>
-                <span class="text-slate-400">${item.value}%</span>
-              </div>
-              <div class="w-full bg-slate-800 rounded-full h-3">
-                <div class="bg-blue-500 h-3 rounded-full transition-all duration-500" style="width: ${item.value}%"></div>
-              </div>
-            </div>
-          `;
-        });
-
-        document.getElementById("resultArea").classList.remove("hidden");
+        renderBars(chartData);
       } catch (err) {
-        errorBox.innerText = "Error: " + err.message;
+        errorBox.innerText = "Error: " + err.message + " (Tip: Check if an ad-blocker or VPN is blocking Google APIs, or try Incognito mode.)";
         errorBox.classList.remove("hidden");
       } finally {
         btn.innerText = "Generate";
